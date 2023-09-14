@@ -557,6 +557,7 @@ class SidecarRecorder(Recorder):
         # Don't raise exceptions from here. This is called in the
         # request/response path and should finish cleanly.
         serialized_str = json.dumps(span._serialize()).encode("utf8")
+        logger.warning("Serialized span: %s", span._serialize())
         if len(serialized_str) > MAX_SPAN_SIZE:
             logger.warning(
                 "Trace too big. Traces published to %s are not allowed to be larger "
