@@ -279,7 +279,7 @@ class TraceSpanObserver(SpanObserver):
             "binaryAnnotations": binary_annotations,
         }
 
-        span["parentId"] = self.span.parent_id or 0
+        span["parentId"] = self.span.parent_id or ""
         return span
 
     def _serialize(self) -> Dict[str, Any]:
