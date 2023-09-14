@@ -124,7 +124,7 @@ class TraceInfo(NamedTuple):
         with any upstream requests.
 
         """
-        trace_id = str(random.getrandbits(64))
+        trace_id = hex(random.getrandbits(64))
         return cls(trace_id=trace_id, parent_id=None, span_id=trace_id, sampled=None, flags=None)
 
     @classmethod
@@ -703,7 +703,7 @@ class LocalSpan(Span):
         if not self.context:
             raise ParentSpanAlreadyFinishedError
 
-        span_id = str(random.getrandbits(64))
+        span_id = hex(random.getrandbits(64))
         context_copy = self.context.clone()
         span: Span
         if local:
