@@ -19,6 +19,8 @@ from thrift.transport.TTransport import TTransportException
 from baseplate.lib import config
 from baseplate.server import runtime_monitor
 
+from opentelemetry import trace
+
 
 logger = logging.getLogger(__name__)
 
@@ -46,16 +48,19 @@ class GeventServer(StreamServer):
         client = TSocket()
         client.setHandle(client_socket)
 
-        trans = self.transport_factory.getTransport(client)
-        prot = self.protocol_factory.getProtocol(trans)
+        itrans = self.transport_factory.getTransport(client)
+        otrans = self.transport_factory.getTransport(client)
+        iprot = self.protocol_factory.getProtocol(itrans)
+        oprot = self.protocol_factory.getProtocol(otrans)
 
         try:
             while self.started:
-                self.processor.process(prot, prot)
+                self.processor.process(iprot, oprot)
         except TTransportException:
             pass
         finally:
-            trans.close()
+            itrans.close()
+            otrans.close()
 
 
 def make_server(server_config: Dict[str, str], listener: socket.socket, app: Any) -> StreamServer:
