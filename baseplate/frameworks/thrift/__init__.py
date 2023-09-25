@@ -71,7 +71,6 @@ class OpenTelemetryProcessor(TProcessor):
 
     def process(self, iprot, oprot):
         print("processing started")
-        breakpoint()
         headers = iprot.get_headers()
 
         traceparent_header = headers.get(b"traceparent")
