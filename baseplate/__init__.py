@@ -14,6 +14,8 @@ from typing import Optional
 from typing import Tuple
 from typing import Type
 
+from opentelemetry import trace
+
 import gevent.monkey
 
 from pkg_resources import DistributionNotFound
@@ -188,6 +190,7 @@ class RequestContext:
         context_config: Dict[str, Any],
         prefix: Optional[str] = None,
         span: Optional["Span"] = None,
+        parent: Optional[trace.span.Span] = None,
         wrapped: Optional["RequestContext"] = None,
     ):
         self.__context_config = context_config
@@ -201,6 +204,7 @@ class RequestContext:
         #
         # this would be much cleaner with a different API but this is where we are.
         self.span: "Span" = span  # type: ignore
+        self.parent = trace.get_current_span()
 
     def __getattr__(self, name: str) -> Any:
         try:
@@ -219,8 +223,9 @@ class RequestContext:
             full_name = name
 
         if isinstance(config_item, dict):
-            obj = RequestContext(context_config=config_item, prefix=full_name, span=self.span)
+            obj = RequestContext(context_config=config_item, prefix=full_name, span=self.span, parent=self.parent)
         elif hasattr(config_item, "make_object_for_context"):
+            self.parent = trace.get_current_span()
             obj = config_item.make_object_for_context(full_name, self.span)
         else:
             obj = config_item

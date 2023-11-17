@@ -273,8 +273,10 @@ def _build_thrift_proxy_method(name: str) -> Callable[..., Any]:
                         f"Will use the following otel span attributes. [{span=}, {otel_attributes=}]"
                     )
 
+                    ctx = trace.set_span_in_context(span.context.parent)
                     with self.tracer.start_as_current_span(
                         trace_name,
+                        context=ctx,
                         kind=trace.SpanKind.CLIENT,
                         attributes=otel_attributes,
                     ) as otelspan:
