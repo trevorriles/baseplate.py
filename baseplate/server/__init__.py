@@ -388,7 +388,6 @@ def load_app_and_run_server() -> None:
         logger.info("Metrics are not configured, Prometheus metrics will not be exported.")
 
     configure_logging(config, args.debug)
-    configure_tracing(config)
 
     app = make_app(config.app)
     listener = make_listener(args.bind)
@@ -399,6 +398,8 @@ def load_app_and_run_server() -> None:
 
     if args.reload:
         reloader.start_reload_watcher(extra_files=[args.config_file.name])
+
+    configure_tracing(config)
 
     # clean up leftovers from initialization before we get into requests
     gc.collect()
